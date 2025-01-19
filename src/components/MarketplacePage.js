@@ -1,6 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import NostrMarketplace from '../lib/NostrMarketplace';
 
+const ImageModal = ({ image, onClose }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="max-w-4xl max-h-[90vh] p-2 bg-white rounded-lg">
+        <img 
+          src={image} 
+          alt="Full size" 
+          className="max-w-full max-h-[80vh] object-contain"
+          onClick={e => e.stopPropagation()}
+        />
+      </div>
+    </div>
+  );
+};
+
+const ImagePreview = ({ images, onRemove }) => {
+  return (
+    <div className="flex gap-2 mt-2">
+      {images.map((image, index) => (
+        <div key={index} className="relative">
+          <img
+            src={image}
+            alt={`Preview ${index + 1}`}
+            className="w-20 h-20 object-cover rounded"
+          />
+          <button
+            onClick={() => onRemove(index)}
+            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const compressImage = (file) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions (max 800px width/height)
+        if (width > height && width > 800) {
+          height *= 800 / width;
+          width = 800;
+        } else if (height > 800) {
+          width *= 800 / height;
+          height = 800;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Compress to JPEG with 0.7 quality
+        canvas.toBlob(
+          (blob) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          },
+          'image/jpeg',
+          0.7
+        );
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 const ProductForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -16,9 +95,54 @@ const ProductForm = ({ onSubmit }) => {
     categories: []
   });
 
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (formData.images.length + files.length > 3) {
+      alert('Maximum 3 images allowed');
+      return;
+    }
+
+    for (const file of files) {
+      try {
+        const compressedImage = await compressImage(file);
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, compressedImage]
+        }));
+      } catch (error) {
+        console.error('Error processing image:', error);
+        alert('Error processing image. Please try another one.');
+      }
+    }
+    
+    // Clear the input
+    e.target.value = '';
+  };
+
+  const removeImage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
+    // Clear form after submission
+    setFormData({
+      title: '',
+      description: '',
+      price: '',
+      currency: 'BTC',
+      paymentMethods: [],
+      website: '',
+      contactInfo: '',
+      deliveryMethods: [],
+      images: [],
+      notes: '',
+      categories: []
+    });
   };
 
   return (
@@ -43,6 +167,26 @@ const ProductForm = ({ onSubmit }) => {
           rows="4"
           required
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Images (Max 3, will be resized if needed)
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          multiple
+          className="w-full p-2 border rounded"
+          disabled={formData.images.length >= 3}
+        />
+        {formData.images.length > 0 && (
+          <ImagePreview 
+            images={formData.images}
+            onRemove={removeImage}
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -123,14 +267,37 @@ const ProductForm = ({ onSubmit }) => {
 };
 
 const ProductCard = ({ product, onFollow }) => {
+  const [selectedImage, setSelectedImage] = useState(null);
+
   return (
     <div className="border rounded-lg p-4 space-y-3">
-      <h3 className="text-xl font-semibold">{product.title || 'Untitled Product'}</h3>
-      <p className="text-gray-600">{product.description || 'No description provided'}</p>
+      <div className="flex justify-between items-start">
+        <h3 className="text-xl font-semibold">{product.title}</h3>
+        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+          #nostrmarketplace
+        </span>
+      </div>
+
+      {/* Images Section */}
+      {product.images?.length > 0 && (
+        <div className="flex gap-2">
+          {product.images.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Product ${index + 1}`}
+              className="w-20 h-20 object-cover rounded cursor-pointer hover:opacity-80"
+              onClick={() => setSelectedImage(image)}
+            />
+          ))}
+        </div>
+      )}
+
+      <p className="text-gray-600">{product.description}</p>
       
       <div className="flex justify-between items-center">
         <span className="font-bold">
-          {product.price ? `${product.price} ${product.currency || 'BTC'}` : 'Price not set'}
+          {product.price} {product.currency}
         </span>
         <button
           onClick={() => onFollow(product.pubkey)}
@@ -158,10 +325,15 @@ const ProductCard = ({ product, onFollow }) => {
         {product.contactInfo && (
           <p><strong>Contact:</strong> {product.contactInfo}</p>
         )}
-        {product.notes && (
-          <p><strong>Notes:</strong> {product.notes}</p>
-        )}
+        {product.notes && <p><strong>Notes:</strong> {product.notes}</p>}
       </div>
+
+      {selectedImage && (
+        <ImageModal 
+          image={selectedImage} 
+          onClose={() => setSelectedImage(null)} 
+        />
+      )}
     </div>
   );
 };
@@ -220,7 +392,12 @@ const MarketplacePage = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-8">Nostr Marketplace</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Nostr Marketplace</h1>
+        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+          #nostrmarketplace
+        </span>
+      </div>
 
       <div className="mb-8">
         <div className="flex gap-2 mb-4">
@@ -238,10 +415,11 @@ const MarketplacePage = () => {
             Search
           </button>
         </div>
-        <div className="mb-8">
+      </div>
+
+      <div className="mb-8">
         <h2 className="text-xl font-bold mb-4">Add New Product</h2>
         <ProductForm onSubmit={handleProductSubmit} />
-      </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

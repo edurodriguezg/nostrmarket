@@ -12,6 +12,7 @@ class NostrMarketplace {
     ];
     this.pool = new SimplePool();
     this.PRODUCT_KIND = 30017;
+    this.APP_TAG = ['t', 'nostrmarketplace']; // Changed from 'nostrmarket_v1'
   }
 
   async connect() {
@@ -45,7 +46,8 @@ class NostrMarketplace {
 
       // Basic tags that are always included
       const tags = [
-        ['c', 'marketplace']
+        ['c', 'marketplace'],
+        this.APP_TAG, // Add our app identifier tag
       ];
 
       // Add price tag if price exists
@@ -109,15 +111,20 @@ class NostrMarketplace {
     }
   }
 
-  async searchProducts(filters) {
+  async searchProducts(filters = {}) {
     try {
       await this.connect();
 
-      const events = await this.pool.list(this.relays, [{
+      // Add our app tag to the filter
+      const searchFilter = {
         kinds: [this.PRODUCT_KIND],
         limit: 100,
-        ...filters
-      }]);
+        ...filters,
+        // '#t' filter for our app identifier
+        '#t': ['nostrmarketplace']
+      };
+
+      const events = await this.pool.list(this.relays, [searchFilter]);
 
       return events
         .filter(event => {
