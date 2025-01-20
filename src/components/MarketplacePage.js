@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import NostrMarketplace from '../lib/NostrMarketplace';
 import InfoModal from './InfoModal';
+import MobileNotice from './MobileNotice';
 
 const ImageModal = ({ image, onClose }) => {
   return (
@@ -299,7 +300,7 @@ const ProductForm = ({ onSubmit }) => {
   );
 };
 
-const ProductCard = ({ product, onFollow }) => {
+const ProductCard = ({ product, onFollow, readOnly }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   return (
@@ -332,12 +333,14 @@ const ProductCard = ({ product, onFollow }) => {
         <span className="font-bold">
           {product.price} {product.currency}
         </span>
-        <button
-          onClick={() => onFollow(product.pubkey)}
-          className="text-blue-500 hover:text-blue-600"
-        >
-          Seguir Vendedor
-        </button>
+        {!readOnly && (
+          <button
+            onClick={() => onFollow(product.pubkey)}
+            className="text-blue-500 hover:text-blue-600"
+          >
+            Seguir Vendedor
+          </button>
+        )}
       </div>
 
       <div className="space-y-2 text-sm">
@@ -375,7 +378,7 @@ const ProductCard = ({ product, onFollow }) => {
   );
 };
 
-const MarketplacePage = () => {
+const MarketplacePage = ({ readOnly = false }) => {
   const [client, setClient] = useState(null);
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -443,6 +446,8 @@ const MarketplacePage = () => {
         </div>
       </div>
 
+      {readOnly && <MobileNotice />}
+
       <div className="mb-8">
         <div className="flex gap-2 mb-4">
           <input
@@ -461,10 +466,12 @@ const MarketplacePage = () => {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Añadir Nuevo Producto</h2>
-        <ProductForm onSubmit={handleProductSubmit} />
-      </div>
+      {!readOnly && (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">Añadir Nuevo Producto</h2>
+          <ProductForm onSubmit={handleProductSubmit} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {loading ? (
@@ -477,6 +484,7 @@ const MarketplacePage = () => {
               key={product.id}
               product={product}
               onFollow={handleFollow}
+              readOnly={readOnly}
             />
           ))
         )}
