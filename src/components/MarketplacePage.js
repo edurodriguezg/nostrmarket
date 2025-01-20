@@ -7,7 +7,7 @@ const ImageModal = ({ image, onClose }) => {
       <div className="max-w-4xl max-h-[90vh] p-2 bg-white rounded-lg">
         <img 
           src={image} 
-          alt="Full size" 
+          alt="Tamaño completo" 
           className="max-w-full max-h-[80vh] object-contain"
           onClick={e => e.stopPropagation()}
         />
@@ -23,7 +23,7 @@ const ImagePreview = ({ images, onRemove }) => {
         <div key={index} className="relative">
           <img
             src={image}
-            alt={`Preview ${index + 1}`}
+            alt={`Vista previa ${index + 1}`}
             className="w-20 h-20 object-cover rounded"
           />
           <button
@@ -87,9 +87,9 @@ const ProductForm = ({ onSubmit }) => {
     price: '',
     currency: 'BTC',
     paymentMethods: [],
+    deliveryMethods: [],
     website: '',
     contactInfo: '',
-    deliveryMethods: [],
     images: [],
     notes: '',
     categories: []
@@ -98,7 +98,7 @@ const ProductForm = ({ onSubmit }) => {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (formData.images.length + files.length > 3) {
-      alert('Maximum 3 images allowed');
+      alert('Máximo 3 imágenes permitidas');
       return;
     }
 
@@ -110,12 +110,11 @@ const ProductForm = ({ onSubmit }) => {
           images: [...prev.images, compressedImage]
         }));
       } catch (error) {
-        console.error('Error processing image:', error);
-        alert('Error processing image. Please try another one.');
+        console.error('Error al procesar la imagen:', error);
+        alert('Error al procesar la imagen. Por favor, intente con otra.');
       }
     }
     
-    // Clear the input
     e.target.value = '';
   };
 
@@ -129,16 +128,15 @@ const ProductForm = ({ onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
-    // Clear form after submission
     setFormData({
       title: '',
       description: '',
       price: '',
       currency: 'BTC',
       paymentMethods: [],
+      deliveryMethods: [],
       website: '',
       contactInfo: '',
-      deliveryMethods: [],
       images: [],
       notes: '',
       categories: []
@@ -148,30 +146,32 @@ const ProductForm = ({ onSubmit }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Title</label>
+        <label className="block text-sm font-medium mb-1">Título</label>
         <input
           type="text"
           value={formData.title}
           onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))}
           className="w-full p-2 border rounded"
+          placeholder="Nombre del producto"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Description</label>
+        <label className="block text-sm font-medium mb-1">Descripción</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}
           className="w-full p-2 border rounded"
           rows="4"
+          placeholder="Describe tu producto"
           required
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-1">
-          Images (Max 3, will be resized if needed)
+          Imágenes (Máximo 3, se redimensionarán si es necesario)
         </label>
         <input
           type="file"
@@ -191,17 +191,18 @@ const ProductForm = ({ onSubmit }) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Price</label>
+          <label className="block text-sm font-medium mb-1">Precio</label>
           <input
             type="number"
             value={formData.price}
             onChange={(e) => setFormData(prev => ({...prev, price: e.target.value}))}
             className="w-full p-2 border rounded"
+            placeholder="0"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Currency</label>
+          <label className="block text-sm font-medium mb-1">Moneda</label>
           <select
             value={formData.currency}
             onChange={(e) => setFormData(prev => ({...prev, currency: e.target.value}))}
@@ -214,44 +215,75 @@ const ProductForm = ({ onSubmit }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Payment Methods</label>
+        <label className="block text-sm font-medium mb-1">Métodos de Pago</label>
         <div className="space-y-2">
-          {['Lightning', 'On-chain Bitcoin'].map(method => (
-            <label key={method} className="flex items-center">
+          {[
+            { id: 'Lightning', label: 'Lightning Network' },
+            { id: 'On-chain Bitcoin', label: 'Bitcoin On-chain' }
+          ].map(method => (
+            <label key={method.id} className="flex items-center">
               <input
                 type="checkbox"
-                checked={formData.paymentMethods.includes(method)}
+                checked={formData.paymentMethods.includes(method.id)}
                 onChange={(e) => {
                   const methods = e.target.checked
-                    ? [...formData.paymentMethods, method]
-                    : formData.paymentMethods.filter(m => m !== method);
+                    ? [...formData.paymentMethods, method.id]
+                    : formData.paymentMethods.filter(m => m !== method.id);
                   setFormData(prev => ({...prev, paymentMethods: methods}));
                 }}
                 className="mr-2"
               />
-              {method}
+              {method.label}
             </label>
           ))}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Website (optional)</label>
+        <label className="block text-sm font-medium mb-1">Método de Entrega</label>
+        <div className="space-y-2">
+          {[
+            { id: 'Presencial', label: 'Presencial' },
+            { id: 'Digital', label: 'Digital / Online' },
+            { id: 'Envio', label: 'Envío a domicilio' }
+          ].map(method => (
+            <label key={method.id} className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.deliveryMethods.includes(method.id)}
+                onChange={(e) => {
+                  const methods = e.target.checked
+                    ? [...formData.deliveryMethods, method.id]
+                    : formData.deliveryMethods.filter(m => m !== method.id);
+                  setFormData(prev => ({...prev, deliveryMethods: methods}));
+                }}
+                className="mr-2"
+              />
+              {method.label}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Sitio Web (opcional)</label>
         <input
           type="url"
           value={formData.website}
           onChange={(e) => setFormData(prev => ({...prev, website: e.target.value}))}
           className="w-full p-2 border rounded"
+          placeholder="https://ejemplo.com"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Contact Info</label>
+        <label className="block text-sm font-medium mb-1">Información de Contacto</label>
         <input
           type="text"
           value={formData.contactInfo}
           onChange={(e) => setFormData(prev => ({...prev, contactInfo: e.target.value}))}
           className="w-full p-2 border rounded"
+          placeholder="Telegram, correo electrónico, etc."
           required
         />
       </div>
@@ -260,7 +292,7 @@ const ProductForm = ({ onSubmit }) => {
         type="submit"
         className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
       >
-        List Product
+        Publicar Producto
       </button>
     </form>
   );
@@ -285,7 +317,7 @@ const ProductCard = ({ product, onFollow }) => {
             <img
               key={index}
               src={image}
-              alt={`Product ${index + 1}`}
+              alt={`Producto ${index + 1}`}
               className="w-20 h-20 object-cover rounded cursor-pointer hover:opacity-80"
               onClick={() => setSelectedImage(image)}
             />
@@ -303,29 +335,33 @@ const ProductCard = ({ product, onFollow }) => {
           onClick={() => onFollow(product.pubkey)}
           className="text-blue-500 hover:text-blue-600"
         >
-          Follow Seller
+          Seguir Vendedor
         </button>
       </div>
 
       <div className="space-y-2 text-sm">
         {product.paymentMethods?.length > 0 && (
-          <p><strong>Payment:</strong> {product.paymentMethods.join(', ')}</p>
+          <p><strong>Pago:</strong> {product.paymentMethods.map(method => 
+            method === 'Lightning' ? 'Lightning Network' : 
+            method === 'On-chain Bitcoin' ? 'Bitcoin On-chain' : 
+            method
+          ).join(', ')}</p>
         )}
         {product.deliveryMethods?.length > 0 && (
-          <p><strong>Delivery:</strong> {product.deliveryMethods.join(', ')}</p>
+          <p><strong>Entrega:</strong> {product.deliveryMethods.join(', ')}</p>
         )}
         {product.website && (
           <p>
-            <strong>Website:</strong>{' '}
+            <strong>Sitio Web:</strong>{' '}
             <a href={product.website} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
               {product.website}
             </a>
           </p>
         )}
         {product.contactInfo && (
-          <p><strong>Contact:</strong> {product.contactInfo}</p>
+          <p><strong>Contacto:</strong> {product.contactInfo}</p>
         )}
-        {product.notes && <p><strong>Notes:</strong> {product.notes}</p>}
+        {product.notes && <p><strong>Notas:</strong> {product.notes}</p>}
       </div>
 
       {selectedImage && (
@@ -371,8 +407,12 @@ const MarketplacePage = () => {
 
   const handleFollow = async (pubkey) => {
     if (!client) return;
-    await client.followSeller(pubkey);
-    alert('Seller followed successfully!');
+    try {
+      await client.followSeller(pubkey);
+      alert('¡Vendedor seguido exitosamente!');
+    } catch (error) {
+      alert('Error al seguir al vendedor: ' + error.message);
+    }
   };
 
   const handleProductSubmit = async (productData) => {
@@ -380,13 +420,13 @@ const MarketplacePage = () => {
     
     try {
       await client.publishProduct(productData);
-      alert('Product listed successfully!');
+      alert('¡Producto publicado exitosamente!');
       
       // Refresh products
       const products = await client.searchProducts({});
       setProducts(products);
     } catch (error) {
-      alert('Error listing product: ' + error.message);
+      alert('Error al publicar el producto: ' + error.message);
     }
   };
 
@@ -405,26 +445,28 @@ const MarketplacePage = () => {
             type="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search products..."
+            placeholder="Buscar productos..."
             className="flex-1 p-2 border rounded"
           />
           <button
             onClick={handleSearch}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Search
+            Buscar
           </button>
         </div>
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Add New Product</h2>
+        <h2 className="text-xl font-bold mb-4">Añadir Nuevo Producto</h2>
         <ProductForm onSubmit={handleProductSubmit} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {loading ? (
-          <p>Loading...</p>
+          <p>Cargando...</p>
+        ) : products.length === 0 ? (
+          <p>No se encontraron productos</p>
         ) : (
           products.map(product => (
             <ProductCard

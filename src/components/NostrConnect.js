@@ -9,12 +9,10 @@ const NostrConnect = ({ onConnect }) => {
     setIsLoading(true);
     setError(null);
     try {
-      // Check if nostr extension exists
       if (!window.nostr) {
-        throw new Error('No Nostr extension found. Please install Alby or another Nostr extension.');
+        throw new Error('No se encontró ninguna extensión Nostr. Por favor, instala Alby u otra extensión Nostr.');
       }
 
-      // Request public key
       const pubkey = await window.nostr.getPublicKey();
       if (pubkey) {
         onConnect(pubkey);
@@ -30,10 +28,10 @@ const NostrConnect = ({ onConnect }) => {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h1 className="text-center text-3xl font-extrabold text-gray-900 mb-2">
-          Welcome to NostrMarket
+          Nostr Marketplace
         </h1>
         <h2 className="text-center text-lg text-gray-600 mb-8">
-          Connect to start buying and selling
+          Conecta para comenzar a comprar y vender
         </h2>
 
         {/* Security Notice */}
@@ -41,7 +39,7 @@ const NostrConnect = ({ onConnect }) => {
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 text-yellow-400 mr-2" />
             <p className="text-sm text-yellow-700">
-              This site never stores your private keys. All interactions are signed locally using your Nostr extension.
+              Este sitio nunca almacena tus claves privadas. Todas las interacciones se firman localmente usando tu extensión Nostr.
             </p>
           </div>
         </div>
@@ -57,7 +55,7 @@ const NostrConnect = ({ onConnect }) => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  Recommended Connection Method
+                  Método de Conexión Recomendado
                 </span>
               </div>
             </div>
@@ -66,15 +64,15 @@ const NostrConnect = ({ onConnect }) => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
                   <Shield className="h-6 w-6 text-green-500 mr-2" />
-                  <h3 className="text-lg font-medium text-gray-900">Browser Extension</h3>
+                  <h3 className="text-lg font-medium text-gray-900">Extensión del Navegador</h3>
                 </div>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  Recommended
+                  Recomendado
                 </span>
               </div>
               
               <p className="text-sm text-gray-500 mb-4">
-                Connect using Alby or another Nostr browser extension for the most secure experience.
+                Conéctate usando Alby u otra extensión Nostr para una experiencia más segura.
               </p>
 
               <button
@@ -83,7 +81,7 @@ const NostrConnect = ({ onConnect }) => {
                 className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
                   ${isLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'}`}
               >
-                {isLoading ? 'Connecting...' : 'Connect with Extension'}
+                {isLoading ? 'Conectando...' : 'Conectar con Extensión'}
               </button>
             </div>
 
@@ -94,7 +92,7 @@ const NostrConnect = ({ onConnect }) => {
                     <AlertCircle className="h-5 w-5 text-red-400" />
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">Connection Error</h3>
+                    <h3 className="text-sm font-medium text-red-800">Error de Conexión</h3>
                     <div className="mt-2 text-sm text-red-700">
                       <p>{error}</p>
                     </div>
@@ -108,7 +106,7 @@ const NostrConnect = ({ onConnect }) => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Coming Soon</span>
+                <span className="px-2 bg-white text-gray-500">Próximamente</span>
               </div>
             </div>
 
@@ -119,7 +117,7 @@ const NostrConnect = ({ onConnect }) => {
                 className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-500 bg-gray-50 cursor-not-allowed"
               >
                 <Key className="h-4 w-4 mr-2" />
-                Create New Account
+                Crear Nueva Cuenta
               </button>
 
               <button
@@ -127,7 +125,7 @@ const NostrConnect = ({ onConnect }) => {
                 className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-500 bg-gray-50 cursor-not-allowed"
               >
                 <Key className="h-4 w-4 mr-2" />
-                Import Existing Keys
+                Importar Claves Existentes
               </button>
             </div>
           </div>
@@ -141,7 +139,7 @@ const NostrConnect = ({ onConnect }) => {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-gray-50 text-gray-500">
-                Don't have a Nostr extension?
+                ¿No tienes una extensión Nostr?
               </span>
             </div>
           </div>
@@ -152,7 +150,7 @@ const NostrConnect = ({ onConnect }) => {
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-500 text-sm"
             >
-              Install Alby
+              Instalar Alby
             </a>
             <span className="text-gray-500">•</span>
             <a
@@ -161,7 +159,7 @@ const NostrConnect = ({ onConnect }) => {
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-500 text-sm"
             >
-              Learn More
+              Más Información
             </a>
           </div>
         </div>
