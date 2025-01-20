@@ -31,7 +31,7 @@ const NostrConnect = ({ onConnect }) => {
           Nostr Marketplace
         </h1>
         <h2 className="text-center text-lg text-gray-600 mb-8">
-          Conecta para comenzar a comprar y vender
+          Conecta para comenzar a ofrecer tus productos
         </h2>
 
         {/* Security Notice */}
