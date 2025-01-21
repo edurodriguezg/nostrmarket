@@ -162,6 +162,21 @@ const NostrConnect = ({ onConnect }) => {
               Más Información
             </a>
           </div>
+
+          {/* Add Lightning Address */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-700 text-sm">
+              ¿Te gusta esta app? ¡Envíame unos sats para apoyar la App! 🚀
+            </p>
+            <p className="text-gray-900 font-bold text-sm mt-2">
+              <a
+                href="lightning:zapeame@coinos.io"
+                className="text-blue-600 hover:underline"
+              >
+                zapeame@coinos.io
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
