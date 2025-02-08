@@ -2,7 +2,14 @@ import { SimplePool } from "nostr-tools"
 
 class NostrMarketplace {
   constructor() {
-    this.relays = ["wss://relay.damus.io", "wss://nos.lol", "wss://nostr.wine"]
+    // Updated relay list with NIP-99 support
+    this.relays = [
+      "wss://relay.damus.io", // Popular general-purpose relay
+      "wss://nostr.wine", // High-availability relay
+      "wss://relay.nostr.band", // Known to support marketplace events
+      "wss://nostr.mom", // Supports extended event kinds
+      "wss://relay.snort.social", // Supports marketplace listings
+    ]
     this.pool = new SimplePool()
     this.PRODUCT_KIND = 30402
     this.APP_TAG = ["t", "nostrmarketplace"]
@@ -12,7 +19,7 @@ class NostrMarketplace {
 
   async connect() {
     try {
-      const MIN_REQUIRED_RELAYS = 1
+      const MIN_REQUIRED_RELAYS = 2 // Increased from 1 to ensure better propagation
       const successfulConnections = []
 
       for (const relay of this.relays) {
@@ -20,10 +27,6 @@ class NostrMarketplace {
           await this.pool.ensureRelay(relay)
           console.log(`Successfully connected to ${relay}`)
           successfulConnections.push(relay)
-
-          if (successfulConnections.length >= MIN_REQUIRED_RELAYS) {
-            break
-          }
         } catch (error) {
           console.warn(`Failed to connect to ${relay}:`, error.message)
         }

@@ -6,7 +6,13 @@ import { Info } from "lucide-react"
 const InfoModal = () => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const relays = ["wss://relay.damus.io", "wss://nos.lol", "wss://nostr.wine"]
+  const relays = [
+    "wss://relay.damus.io",
+    "wss://nostr.wine",
+    "wss://relay.nostr.band",
+    "wss://nostr.mom",
+    "wss://relay.snort.social",
+  ]
 
   const openModal = () => setIsOpen(true)
   const closeModal = () => setIsOpen(false)
